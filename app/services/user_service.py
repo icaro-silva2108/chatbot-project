@@ -10,7 +10,7 @@ Blocos except tratam o retorno do database a um estado estável com rollback e a
 """
 
 def create_user(name, email, password_hash, birth_date):# --> Criação de novo usuário
-    
+
     conn = None
     cursor = None
 
@@ -18,10 +18,19 @@ def create_user(name, email, password_hash, birth_date):# --> Criação de novo 
         conn = get_connection()
         cursor = conn.cursor()
 
-        sql = "INSERT INTO users (name, email, password_hash, birth_date) VALUES (%s, %s, %s, %s)"
-        cursor.execute(sql, (name, email, password_hash, birth_date))
+        email_query = "SELECT EXISTS(SELECT 1 FROM users WHERE email = %s)"# --> Query separada para verificar se o emil já existe
+        cursor.execute(email_query, (email,))
+        result_query = bool(cursor.fetchone()[0])
 
-        conn.commit()
+        if not result_query:
+            sql = "INSERT INTO users (name, email, password_hash, birth_date) VALUES (%s, %s, %s, %s);"
+            cursor.execute(sql, (name, email, password_hash, birth_date))
+
+            conn.commit()
+            return True# --> Se não existir, confirma que o usuário foi criado
+
+        else:
+            return False# --> Se existir, não poderá criar um usuário com o mesmo email
 
     except Exception as e:
         if conn:
@@ -43,25 +52,25 @@ def delete_user(email):# --> Exclui o cadastro do usuário
         conn = get_connection()
         cursor = conn.cursor()
 
-        id_query = "SELECT id FROM users WHERE email = %s"
+        id_query = "SELECT id FROM users WHERE email = %s;"
         cursor.execute(id_query, (email,))
         user_id = cursor.fetchone()[0]
 
-        rows_select = ("SELECT COUNT(*) FROM reservations WHERE user_id = %s")
+        rows_select = ("SELECT COUNT(*) FROM reservations WHERE user_id = %s;")
         cursor.execute(rows_select, (user_id,))
         rows = cursor.fetchone()[0]#--> Verifica se o usuário tem reservas
 
-        if rows < 1:    
+        if user_id and rows < 1:    
 
-            sql = ("DELETE FROM users WHERE id = %s")# --> Se não tiver reservas, pode ter o cadastro excluído
+            sql = ("DELETE FROM users WHERE id = %s;")
 
             cursor.execute(sql, (user_id,))
             
             conn.commit()
-            return True
+            return True# --> Se usuário não tiver reservas, confirma que teve o cadastro excluído
 
-        else:# --> Se tiver reservas, deverá cancelar primeiro antes de excluir o cadastro
-            return False
+        else:
+            return False# --> Se tiver, mostra que não foi possível ser excluído e deve deletar as reservas antes
 
     except Exception as e:
         if conn:

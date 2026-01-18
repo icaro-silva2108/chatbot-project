@@ -22,12 +22,17 @@ def create_reservation(email, destination_id, travel_date):# --> Cria nova reser
         cursor.execute(id_query, (email,))
         user_id = cursor.fetchone()[0]
 
-        sql = "INSERT INTO reservations (user_id, destination_id, travel_date) VALUES (%s, %s, %s)"
+        if user_id:
+            sql = "INSERT INTO reservations (user_id, destination_id, travel_date) VALUES (%s, %s, %s)"
 
-        cursor.execute(sql, (user_id, destination_id, travel_date))# --> user_id referencia o id de usuário em users no database, assim como o destination_id com o id de destino em destinations
+            cursor.execute(sql, (user_id, destination_id, travel_date))# --> user_id referencia o id de usuário em users no database, assim como o destination_id com o id de destino em destinations
 
-        conn.commit()
+            conn.commit()
+            return True# --> Confirma que a reserva foi criada
 
+        else:
+            return False# --> Mostra que não foi possível criar a reserva
+        
     except Exception as e:
         if conn:
             conn.rollback()
@@ -48,11 +53,20 @@ def cancel_reservation(reservation_id, email):# --> Cancela uma reserva por refe
         conn = get_connection()
         cursor = conn.cursor()
 
-        sql = "DELETE FROM reservations WHERE id = %s AND user_id = (SELECT id FROM users WHERE email = %s)"# --> Identifica o id do usuário pelo email através de uma subquery
+        id_query = "SELECT id FROM users WHERE email = %s"# --> Query separada para buscar id do usuário através do email
+        cursor.execute(id_query, (email,))
+        user_id = cursor.fetchone()[0]
 
-        cursor.execute(sql, (reservation_id, email))
+        if user_id:
+            sql = "DELETE FROM reservations WHERE id = %s AND user_id = %s"# --> Identifica o id do usuário pelo email através de uma subquery
 
-        conn.commit()
+            cursor.execute(sql, (reservation_id, user_id))
+
+            conn.commit()
+            return True# --> Confirma que a reserva foi cancelada
+
+        else:
+            return False# --> Mostra que não foi possível cancelar a reserva
 
     except Exception as e:
         if conn:
@@ -97,7 +111,6 @@ def show_reservations(email):# --> Mostra as reservas feitas pelo usuário atrav
         raise e
 
     finally:
-
         if cursor:
             cursor.close()
         if conn:
