@@ -32,5 +32,5 @@ Trata-se de um projeto visando o desenvolvimento pessoal e a possibilidade de da
 consolidar a minha formação como desenvolvedor.
 
 # Próximos passos
-• Finalizar a aplicação de services<br>
-• Criação do chatbot para execução das funções de services e armazenamento dos dados no banco.
+• Criação do chatbot para execução das funções de services e armazenamento dos dados no banco.<br>
+• Teste das funções de services para conferir funcionalidade adequada.
