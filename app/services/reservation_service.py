@@ -1,4 +1,5 @@
 from app.database.connection import get_connection
+from app.services.utilities import search_user_by_email
 
 """
 Variáveis 'conn'(conexão ao banco) e 'cursor'(meio entre python e banco) recebendo None servem de garantia para que elas existam e não quebrem o código.
@@ -18,14 +19,12 @@ def create_reservation(email, destination_id, travel_date):# --> Cria nova reser
         conn = get_connection()
         cursor = conn.cursor()
 
-        id_query = "SELECT id FROM users WHERE email = %s"# --> Query separada para buscar id do usuário através do email
-        cursor.execute(id_query, (email,))
-        user_id = cursor.fetchone()[0]
+        user_id = search_user_by_email(email)
 
         if user_id:
             sql = "INSERT INTO reservations (user_id, destination_id, travel_date) VALUES (%s, %s, %s)"
 
-            cursor.execute(sql, (user_id, destination_id, travel_date))# --> user_id referencia o id de usuário em users no database, assim como o destination_id com o id de destino em destinations
+            cursor.execute(sql, (user_id, destination_id, travel_date))
 
             conn.commit()
             return True# --> Confirma que a reserva foi criada
@@ -53,9 +52,7 @@ def cancel_reservation(reservation_id, email):# --> Cancela uma reserva por refe
         conn = get_connection()
         cursor = conn.cursor()
 
-        id_query = "SELECT id FROM users WHERE email = %s"# --> Query separada para buscar id do usuário através do email
-        cursor.execute(id_query, (email,))
-        user_id = cursor.fetchone()[0]
+        user_id = search_user_by_email(email)
 
         if user_id:
             sql = "DELETE FROM reservations WHERE id = %s AND user_id = %s"# --> Identifica o id do usuário pelo email através de uma subquery
@@ -88,9 +85,7 @@ def show_reservations(email):# --> Mostra as reservas feitas pelo usuário atrav
         conn = get_connection()
         cursor = conn.cursor()
 
-        id_query = "SELECT id FROM users WHERE email = %s"# --> Query separada para buscar id do usuário através do email
-        cursor.execute(id_query, (email,))
-        user_id = cursor.fetchone()[0]
+        user_id = search_user_by_email(email)
 
         sql ="""SELECT
                 r.id, 
@@ -105,7 +100,7 @@ def show_reservations(email):# --> Mostra as reservas feitas pelo usuário atrav
 
         cursor.execute(sql, (user_id,))
         results = cursor.fetchall()
-        return results
+        return results# --> Retorna as reservas buscadas pelo id do usuário
 
     except Exception as e:
         raise e
