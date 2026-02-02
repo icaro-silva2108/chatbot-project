@@ -101,7 +101,7 @@ def search_destination(destination_id):# --> Procura o id do destino para fazer 
         conn = get_connection()
         cursor = conn.cursor()
 
-        sql = "SELECT id FROM destinations WHERE id = %s AND active = 1"# --> Verifica se o id existe no banco e se está ativo
+        sql = "SELECT id FROM destinations WHERE id = %s AND active = TRUE"# --> Verifica se o id existe no banco e se está ativo
         cursor.execute(sql, (destination_id, ))
         id_row = cursor.fetchone()
 

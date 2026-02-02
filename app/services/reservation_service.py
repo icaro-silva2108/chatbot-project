@@ -1,5 +1,4 @@
 from app.database.connection import get_connection
-from app.services.utilities import search_user_by_email
 
 """
 Variáveis 'conn'(conexão ao banco) e 'cursor'(meio entre python e banco) recebendo None servem de garantia para que elas existam e não quebrem o código.

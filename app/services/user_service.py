@@ -60,7 +60,7 @@ def delete_user(user_id):# --> Exclui o cadastro do usuário
         rows = cursor.fetchone()[0]
 
         if rows > 0:    
-            return False# -->Não pode deletar se houver reservas
+            return False# --> Não pode deletar se houver reservas
         
         sql = ("DELETE FROM users WHERE id = %s;")# --> Tenta deletar o usuário
         cursor.execute(sql, (user_id,))
@@ -88,7 +88,7 @@ def change_user_info(user_id, info: dict):# --> Altera informações de cadastro
     conn = None
     cursor = None
 
-    allowed_keys = {"name", "email", "password_hash", "birth_date"}# --> Chaves permitidas
+    allowed_keys = {"name", "email", "password_hash"}# --> Chaves permitidas
 
     try:
         conn = get_connection()
@@ -115,7 +115,7 @@ def change_user_info(user_id, info: dict):# --> Altera informações de cadastro
 
             new_values.append(user_id)# --> Adiciona o id do usuário no fim da lista dos valores para facilitar no uso do Placeholder
 
-            cursor.execute(sql, (tuple(new_values),))
+            cursor.execute(sql, tuple(new_values))
             
             if cursor.rowcount > 0:
                 conn.commit()

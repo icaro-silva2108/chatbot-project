@@ -16,9 +16,12 @@ def show_destinations():
         conn = get_connection()
         cursor = conn.cursor()
 
-        sql = "SELECT city, country, description, price FROM destinations;"
+        sql = "SELECT id, city, country, description, price FROM destinations WHERE active = TRUE;"
         cursor.execute(sql)
         results = cursor.fetchall()
+
+        if not results:
+            return False
 
         return results# --> Retorna os destinos disponíveis buscados no database
 

@@ -68,14 +68,14 @@ def register():
     except Exception:
         raise
 
-def login_validation(email, password):
+def login_validation():
 
     try:
 
         while True:
 
             email = input("Digite seu email:")# --> Recebe o email
-            password = input("Digite a senha do seu email:")# --> Recebe a senha
+            password = input("Digite a senha da sua conta:")# --> Recebe a senha
 
             user_id = user_service.login(email, password)# --> Faz a confirmação do login
 
@@ -97,29 +97,29 @@ def action_create_reservation(user_id):
 
         while True:
 
-            destination_id = int(input("Qual destino deseja reservar?"))
+            destination_id = int(input("Qual destino deseja reservar?"))# --> Recebe o id do destino para criar uma reserva
 
             if not utilities.search_destination(destination_id):
-                print("Destino não disponível. Selecione outro válido")
+                print("Destino não disponível. Selecione outro válido")# --> Se o id for de um destino inativo ou que não existe, retorna para a escolha do id
                 continue
             break
 
         while True:
 
             try:
-                travel_date_str = input("Escolha a data da viagem(dd/mm/aaaa):")
-                travel_date = datetime.strptime(travel_date_str, "%d/%m/%Y").date()
+                travel_date_str = input("Escolha a data da viagem(dd/mm/aaaa):")# --> Recebe a data que será feita a  viagem
+                travel_date = datetime.strptime(travel_date_str, "%d/%m/%Y").date()# --> Transforma a string recebida em objeto data
 
             except ValueError:
-                print("Formato de data inválido. Use (dd/mm/aaaa)")
+                print("Formato de data inválido. Use (dd/mm/aaaa)")# --> Se a string recebida causar erro na criação do objeto, pede pra colocar uma data válida
                 continue
 
-            if travel_date <= date.today():
+            if travel_date <= date.today():# --> Se a data for anterior ou igual ao dia atual, não permite a criação da reserva
                 print("Escolha uma data futura. Datas de hoje e datas passadas não são aceitas")
                 continue
             break
 
-        reservation_confirm = reservation_service.create_reservation(user_id, destination_id, travel_date)
+        reservation_confirm = reservation_service.create_reservation(user_id, destination_id, travel_date)# --> Cria a reserva
         return reservation_confirm
 
     except Exception:
@@ -129,30 +129,110 @@ def action_cancel_reservation(user_id):
 
     try:
 
-        user_reservations = reservation_service.show_reservations(user_id)
+        user_reservations = reservation_service.show_reservations(user_id)# --> Recebe as reservas do usuário
         if not user_reservations:
-            print("Você não tem reservas para cancelar.")
+            print("Você não tem reservas para cancelar.")# --> Se não tiver reservas, comunica a ausência e retorna para o menu
             return False
 
         print("Suas reservas:")
         for r in user_reservations:
-            print(f"ID: {r[0]} | {r[1]} - {r[2]} | Data: {r[3]} | Status: {r[4]} | Preço: {r[5]}")
+            print(f"ID: {r[0]} | {r[1]} - {r[2]} | Data: {r[3]} | Status: {r[4]} | Preço: {r[5]}")# --> Lista as reservas para o usuário escolher qual deseja cancelar
 
         while True:
 
-            reservation_id = int(input("Digite o ID da reserva que quer cancelar(ou 0 para sair):"))
-            
-            if reservation_id == 0:
+            reservation_id = int(input("Digite o ID da reserva que quer cancelar(ou 0 para sair):"))# --> Recebe o id da reserva que deseja cancelar ou opção 0 para abortar o cancelamento
+
+            if reservation_id == 0:# --> Aborta o cancelamento e retorna ao menu
                 print("Cancelamento abortado.")
                 return False
-            
-            elif reservation_service.cancel_reservation(reservation_id, user_id):
-                print(f"Reserva de ID: {reservation_id} cancelada com sucesso!")
-                return True
+
+            elif reservation_service.cancel_reservation(reservation_id, user_id):# --> Cancela a reserva
+                return reservation_id
 
             else:
-                print("Reserva inválida. Escolha uma ID da lista.")
-                
+                print("Reserva inválida. Escolha uma ID da lista.")# --> Se id de reserva for inválido, comunica que não foi possível cancelar
+
+    except Exception:
+        raise
+
+def action_show_reservations(user_id):
+
+    try:
+
+        user_reservations = reservation_service.show_reservations(user_id)# --> Recebe as reservas do usuário
+        if not user_reservations:# --> Se o usuário não tiver reservas, comunica a ausência
+            return False
+
+        print("Suas reservas:")
+        for r in user_reservations:
+            print(f"ID: {r[0]} | {r[1]} - {r[2]} | Data: {r[3]} | Status: {r[4]} | Preço: {r[5]}")# --> Lista as reservas do usuário
+
+        return True
+
+    except Exception:
+        raise
+
+def action_show_active_destinations():
+
+    try:
+
+        active_destinations = destination_service.show_destinations()# --> Recebe os destinos ativos para realização de reservas
+        if not active_destinations:# --> Se não houver destinos disponíveis, comunica a falta de destinos
+            return False
+
+        for d in active_destinations:
+            print(f"{d[0]} | {d[1]} - {d[2]} | Preço: {d[4]} | Descrição: {d[3]}")# --> Mostra os destinos ativos
+
+        return True
+
+    except Exception:
+        raise
+
+def action_change_user_info(user_id):
+
+    try:
+
+        data = {}# --> Dicionário de dados que será enviado para a função change_user_info(user_id, info: dict)
+
+        keys_to_change=input("""Dados possíveis: Nome, email e senha
+Digite os dados que deseja alterar:""")# --> Recebe quais dados serão alterados
+        values_to_insert=input("""Na mesma ordem de dos dados que deseja alterar, digite os novos valores:""")# --> Recebe quais valores substituirão os dados antigos
+
+        keys_list = keys_to_change.split()# --> Cria uma lista dos dados que serão alterados
+        values_list = values_to_insert.split()# --> Cria uma lista dos valores que substituirão dados antigos
+
+        for k, v in zip(keys_list, values_list):# --> Atualiza o dict data inserindo pares de {dado a ser alterado : valor desse dado}
+            if k == "nome":# --> Traduz a chaves nome para o formato presente na função change_user_info(user_id, info: dict)
+                data.update({"name" : v})
+            elif k == "senha":# --> Traduz a chave senha para o formato presente na função change_user_info(user_id, info: dict) e faz o hasheamento da senha nova
+                data.update({"password_hash" : security.hash_password(v)})
+            elif k == "email":# --> Reconhece a chave email e insere o par no dict data
+                data.update({"email" : v})
+
+        if user_service.change_user_info(user_id, data):# --> Se conseguir fazer a alteração, retorna o sucesso da transação
+            return True
+        else:# --> Caso contrário, retorna falha
+            return False
+
+    except Exception:
+        raise
+
+def action_delete_user(user_id):
+
+    try:
+
+        confirm=int(input("""Certeza que deseja excluír seu cadastro?
+0 - Sim
+1 - Não"""))# --> Confirmação da certeza de exclusão do cadastro
+
+        if confirm == 0:# --> Se confirmar tenta deletar
+            if user_service.delete_user(user_id):
+                return True# --> Se a exclusão for concluída, confirma que foi deletado
+            else:
+                return False# --> Se o usuário tiver reservas, comunica que é necessário cancelar as reservas primeiro
+
+        else:
+            return False# --> Se o usuário não confirmar, retorna para o menu
 
     except Exception:
         raise
