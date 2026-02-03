@@ -1,6 +1,7 @@
 # Descrição
 Projeto pessoal de chatbot de atendimento para viagens que envolve funções como:<br>
 • Criar cadastro<br>
+• Acessar o cadastro<br>
 • Cancelar cadastro<br>
 • Alterar informações de cadastro<br>
 • Criar reserva<br>
@@ -17,11 +18,13 @@ Projeto pessoal de chatbot de atendimento para viagens que envolve funções com
 • mysql.connector(Integrar o Python ao banco MySQL)<br>
 • dotenv(Ocultar dados sensíveis)<br>
 • os(Para variáveis de ambiente - Complementar dotenv)<br>
+• bcrypt(Hasheamento de senhas e validação para login)<br>
+• datetime(Conversão para objeto data e verificação de datas válidas.)
 
 # Estrutura do Projeto
 Dentro da pasta central app, há a pasta database onde pode se encontrar o script sql para o CRUD de usuários e a criação de tabelas destinations(para destinos) e reservations(para reservas).
 Também há uma pasta de services para aplicar as funções voltadas aos usuários e serviços como um todo.
-Além disso possui arquivos utilitários para as necessidades futuras da aplicação.
+Além disso possui arquivos utilitários para as necessidades da aplicação.
 
 # Objetivo do Projeto
 O objetivo é consolidar na prática conhecimentos de programação e banco de dados por meio do desenvolvimento de um sistema próximo
@@ -32,5 +35,5 @@ Trata-se de um projeto visando o desenvolvimento pessoal e a possibilidade de da
 consolidar a minha formação como desenvolvedor.
 
 # Próximos passos
-• Criação do chatbot para execução das funções de services e armazenamento dos dados no banco.<br>
-• Teste das funções de services para conferir funcionalidade adequada.
+• Migração do projeto para API.<br>
+• Posteriormente, desenvolvimento da interface web.
