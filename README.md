@@ -1,5 +1,5 @@
 # Descrição
-Projeto pessoal de chatbot de atendimento para viagens que envolve funções como:<br>
+Projeto pessoal de plataforma de viagens web que envolve funções como:<br>
 • Criar cadastro<br>
 • Acessar o cadastro<br>
 • Cancelar cadastro<br>
@@ -20,11 +20,13 @@ Projeto pessoal de chatbot de atendimento para viagens que envolve funções com
 • os(Para variáveis de ambiente - Complementar dotenv)<br>
 • bcrypt(Hasheamento de senhas e validação para login)<br>
 • datetime(Conversão para objeto data e verificação de datas válidas.)
+• flask(Para requests e reponses em json, blueprint de rotas.)
+• flask-jwt-extended(Para autenticação com JWT e configuração do manager JWT.)
 
 # Estrutura do Projeto
 Dentro da pasta central app, há a pasta database onde pode se encontrar o script sql para o CRUD de usuários e a criação de tabelas destinations(para destinos) e reservations(para reservas).
 A pasta api contém arquivos para ligar o server, definir rotas e configurar JWT.
-Interfaces é para fins de teste da ligação com database.
+Interfaces é para fins de teste da ligação com database usando chatbot.py para execução dos testes.
 Também há uma pasta de services para aplicar as funções voltadas aos usuários e serviços como um todo.
 Além disso possui arquivos utilitários para as necessidades da aplicação.
 
