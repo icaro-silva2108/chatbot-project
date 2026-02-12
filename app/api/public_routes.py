@@ -1,10 +1,13 @@
 from flask import Blueprint, request, jsonify
 from app.services import user_service, destination_service, utilities, security
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, create_refresh_token
+from app.api.limiter import limiter
+import uuid
 
 public_routes = Blueprint("public_routes", __name__)
 
 @public_routes.route("/signup" , methods = ["POST"])
+@limiter.limit("10 per minute")
 def sign_up():
 
     data = request.get_json()
@@ -14,11 +17,11 @@ def sign_up():
             "message" : "JSON inválido"
             }), 400
 
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
-    password_confirm = data.get("password_confirm")
-    birth_date_str = data.get("birth_date")
+    name = data.get("name", "").strip().title()
+    email = data.get("email", "").strip()
+    password = data.get("password", "").strip()
+    password_confirm = data.get("password_confirm", "").strip()
+    birth_date_str = data.get("birth_date", "").strip()
 
     #Validação de todos os campos preenchidos
     if not all([name, email, password, password_confirm, birth_date_str]):
@@ -28,6 +31,12 @@ def sign_up():
             }), 400
 
     #Email
+    if not utilities.email_format_validation(email):
+        return jsonify({
+            "success" : False,
+            "message" : "Formato de email inválido(email@email.com)."
+            }), 400
+
     if utilities.search_user_info(email):
         return jsonify({
             "success" : False,
@@ -44,13 +53,21 @@ def sign_up():
     password_hash = security.hash_password(password)
 
     #Data de nascimento
-    birth_date = utilities.birth_date_validation(birth_date_str)
+    birth_date, error = utilities.birth_date_validation(birth_date_str)
 
     if not birth_date:
-        return jsonify({
-            "success" : False,
-            "message" : "É preciso ter pelo menos 16 anos para criar uma conta"
-            }), 400
+
+        if error == "format":
+            return jsonify({
+                "success" : False,
+                "message" : "Formato de data inválido (dd/mm/aaaa)."
+                }), 400
+
+        if error == "age":
+            return jsonify({
+                "success" : False,
+                "message" : "É preciso ter pelo menos 16 anos pra criar uma conta."
+                }), 400
 
     #Criação do usuário
     user_id = user_service.create_user(
@@ -74,6 +91,7 @@ def sign_up():
         }), 201
 
 @public_routes.route("/signin", methods=["POST"])
+@limiter.limit("10 per minute")
 def sign_in():
 
     data = request.get_json()
@@ -83,9 +101,10 @@ def sign_in():
             "message" : "JSON inválido"
             }), 400
 
-    email = data.get("email")
-    password = data.get("password")
+    email = data.get("email", "").strip()
+    password = data.get("password", "").strip()
 
+    # Verifica campos preenchidos
     if not all([email, password]):
         return jsonify({
             "success" : False,
@@ -94,20 +113,26 @@ def sign_in():
 
     logged = user_service.login(email, password)
 
+    # Erro de autenticação
     if not logged:
         return jsonify({
             "success" : False,
             "message" : "Email ou senha inválidos."
             }), 401
 
-    user_token = create_access_token(identity=str(logged["id"]))
+    # Cria tokens de usuário se autenticação for bem sucedida
+    access_token = create_access_token(identity=str(logged["id"]))
+
+    refresh_id = str(uuid.uuid4())
+    refresh_token = create_refresh_token(identity=str(logged["id"]), additional_claims={"refresh_id" : refresh_id})
 
     return jsonify({
         "success" : True,
         "user_id" : logged["id"],
         "name" : logged["name"],
         "email" : logged["email"],
-        "token" : user_token
+        "access_token" : access_token,
+        "refresh_token" : refresh_token
         }), 200
 
 @public_routes.route("/destinations", methods=["GET"])
@@ -115,6 +140,7 @@ def show_homepage_destinations():
 
     destinations = destination_service.show_destinations()
 
+    # Em caso de destinos vazios
     if not destinations:
         return jsonify({
             "success" : True,

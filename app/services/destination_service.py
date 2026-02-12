@@ -7,7 +7,7 @@ Blocos except tratam e apresentam o erro ocorrido.
 Blocos finally servem para garantir que a conexão e o cursor serão interrompidos, impedindo acesso desnecessário ao banco e consumo de memória.
 """
 
-def show_destinations():
+def show_destinations():# --> Mostra destinos ativos
 
     conn = None
     cursor = None
@@ -24,9 +24,6 @@ def show_destinations():
             return False
 
         return results# --> Retorna os destinos disponíveis buscados no database
-
-    except Exception:
-        raise
 
     finally:
         if cursor:

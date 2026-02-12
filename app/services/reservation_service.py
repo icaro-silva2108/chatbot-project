@@ -27,8 +27,10 @@ def create_reservation(user_id, destination_id, travel_date):# --> Cria nova res
 
         reservation_id = cursor.lastrowid
         if reservation_id:
-            return reservation_id # --> Confirma que a reserva foi criada
+            return reservation_id # --> Confirma que a reserva foi criada e retorna id da reserva
         else:
+            if conn:
+                conn.rollback()
             return None
 
     except Exception:
@@ -42,7 +44,7 @@ def create_reservation(user_id, destination_id, travel_date):# --> Cria nova res
         if conn:
             conn.close()
 
-def cancel_reservation(reservation_id, user_id):# --> Cancela uma reserva por referência de email(por ser único para cada usuário) e id da reserva especificando qual será cancelada
+def cancel_reservation(reservation_id, user_id):# --> Cancela uma reserva(referenciada por ID) de determinado ID de usuário
 
     conn = None
     cursor = None
@@ -59,7 +61,8 @@ def cancel_reservation(reservation_id, user_id):# --> Cancela uma reserva por re
             conn.commit()
             return True# --> Confirma que a reserva foi cancelada
         else:
-            conn.rollback()
+            if conn:
+                conn.rollback()
             return False# --> A reserva não existia ou não pertencia ao usuário
 
     except Exception:
@@ -99,9 +102,6 @@ def show_reservations(user_id):# --> Mostra as reservas feitas pelo usuário atr
         cursor.execute(sql, (user_id,))
         results = cursor.fetchall()
         return results# --> Retorna as reservas buscadas pelo id do usuário
-
-    except Exception:
-        raise
 
     finally:
         if cursor:

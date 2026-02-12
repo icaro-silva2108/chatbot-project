@@ -29,11 +29,15 @@ def create_user(name, email, password_hash, birth_date):# --> Criação de novo 
 
         user_id = cursor.lastrowid
         if user_id:
-            return user_id# --> Se não existir, confirma que o usuário foi criado e retorna o id
+            return user_id# --> Se não existir usuário com o mesmo email, confirma que o usuário foi criado e retorna o id
         else:
+            if conn:
+                conn.rollback()
             return None
 
     except IntegrityError:
+        if conn:
+            conn.rollback()
         return None
 
     finally:
@@ -51,13 +55,10 @@ def delete_user(user_id):# --> Exclui o cadastro do usuário
         conn = get_connection()
         cursor = conn.cursor()
 
-        rows_select = ("SELECT COUNT(*) FROM reservations WHERE user_id = %s;")# --> Verifica se o usuário tem reservas
-        cursor.execute(rows_select, (user_id,))
-        rows = cursor.fetchone()[0]
+        user_reservation_rows = utilities.search_user_reservation(user_id)# --> Verifica se o usuário tem reservas
+        if user_reservation_rows:
+            return False
 
-        if rows > 0:    
-            return False# --> Não pode deletar se houver reservas
-        
         sql = ("DELETE FROM users WHERE id = %s;")# --> Tenta deletar o usuário
         cursor.execute(sql, (user_id,))
         
@@ -65,8 +66,9 @@ def delete_user(user_id):# --> Exclui o cadastro do usuário
             conn.commit()
             return True# --> Se usuário não tiver reservas, confirma que teve o cadastro excluído
         else:
-            conn.rollback()
-            return False# --> Se usuário não existia, retorna ao estado anterior
+            if conn:
+                conn.rollback()
+            return False
 
     except Exception:
         if conn:
@@ -84,7 +86,7 @@ def change_user_info(user_id, info: dict):# --> Altera informações de cadastro
     conn = None
     cursor = None
 
-    allowed_keys = {"name", "email", "password_hash"}# --> Chaves permitidas
+    allowed_keys = {"name", "email", "password_hash", "birth_date"}# --> Chaves permitidas
 
     try:
         conn = get_connection()
@@ -101,7 +103,7 @@ def change_user_info(user_id, info: dict):# --> Altera informações de cadastro
                     new_values.append(value)
 
             if not keys_to_change:
-                return False# --> Se não houver colunas para alterar, mostra que não foi possível fazer alterações
+                return False
 
             sql_string = ",".join(f"{key} = %s" for key in keys_to_change)# --> Monta a string de forma adequada para executar o comando sql
 
@@ -117,15 +119,14 @@ def change_user_info(user_id, info: dict):# --> Altera informações de cadastro
             
             if cursor.rowcount > 0:
                 conn.commit()
-                return True# --> Retorna que as alterações foram executadas com sucesso
+                return True
             else:
-                conn.rollback()
+                if conn:
+                    conn.rollback()
                 return False
 
         else:
-            return False# --> Se não houver nada no para modificar, mostra que não foi possível fazer as alterações
-
-
+            return False
 
     except Exception:
         if conn:
@@ -140,14 +141,14 @@ def change_user_info(user_id, info: dict):# --> Altera informações de cadastro
 
 def login(email, password):
 
-    user_info = utilities.search_user_info(email)
+    user_info = utilities.search_user_info(email)# --> Busca dados do usuário no banco
 
     if not user_info:
         return None
 
-    user_id, name, password_hash = user_info
+    user_id, name, password_hash = user_info# --> Desempacota os dados
 
-    if not security.check_password(password, password_hash):
+    if not security.check_password(password, password_hash):# --> Autenticação da senha
         return None
 
     return {
