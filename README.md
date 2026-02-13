@@ -14,14 +14,21 @@ Projeto pessoal de plataforma de viagens web que envolve funções como:<br>
 • MySQL<br>
 • Flask(previsto para implementação futura)
 
-## Bibliotecas Python(Até o momento)
+## Bibliotecas Utilizadas(Até o momento)
+
+### Bibliotecas Python:
+• os(Para variáveis de ambiente - Complementar dotenv)<br>
+• datetime(Conversão para objeto data e verificação de datas válidas.)<br>
+• re(Validação de formato de email.)<br>
+• uuid(Geração de ID aleatório para blacklist de tokens.)
+
+### Bibliotecas Externas
 • mysql.connector(Integrar o Python ao banco MySQL)<br>
 • dotenv(Ocultar dados sensíveis)<br>
-• os(Para variáveis de ambiente - Complementar dotenv)<br>
 • bcrypt(Hasheamento de senhas e validação para login)<br>
-• datetime(Conversão para objeto data e verificação de datas válidas.)
-• flask(Para requests e reponses em json, blueprint de rotas.)
-• flask-jwt-extended(Para autenticação com JWT e configuração do manager JWT.)
+• flask(Para requests e reponses em json, blueprint de rotas.)<br>
+• flask-jwt-extended(Para autenticação com JWT e configuração do manager JWT.)<br>
+• flask_limiter(Rate limit de requisições das rotas)
 
 # Estrutura do Projeto
 Dentro da pasta central app, há a pasta database onde pode se encontrar o script sql para o CRUD de usuários e a criação de tabelas destinations(para destinos) e reservations(para reservas).
@@ -39,5 +46,7 @@ Trata-se de um projeto visando o desenvolvimento pessoal e a possibilidade de da
 consolidar a minha formação como desenvolvedor.
 
 # Próximos passos
-• Finalização da API.<br>
-• Posteriormente, desenvolvimento da interface web.
+• Novos testes no postman.<br>
+• Testes automatizados.<br>
+• Melhorar documentação.<br>
+• Posteriormente, foco em desenvolvimento frontend.
