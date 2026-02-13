@@ -311,8 +311,7 @@ def update_profile():
         }), 200
 
 @protected_routes.route("/profile", methods=["DELETE"])
-@jwt_required()
-
+@jwt_required(refresh=True)
 def delete_user():
 
     # ID usuário
@@ -324,7 +323,7 @@ def delete_user():
             "success" : False,
             "message" : "Usuário não existe ou não está autorizado"
             }), 401
-    
+
     # Verifica se usuário possui reservas
     user_reservations = utilities.search_user_reservation(user_id)
 
@@ -334,7 +333,7 @@ def delete_user():
             "success" : False,
             "message" : "Não é possível cancelar cadastro com reservas ativas."
             }), 400
-    
+
     delete_confirm = user_service.delete_user(user_id)
 
     # Caso de erro ao deletar
@@ -343,7 +342,18 @@ def delete_user():
             "success" : False,
             "message" : "Não foi possível excluir o cadastro."
             }), 500
-    
+
+    # ID refresh token
+    refresh_id = get_jwt().get("refresh_id")
+
+    # Confirmação de revogação
+    revoke_confirm = utilities.add_revoked_tokens(refresh_id)
+    if not revoke_confirm:
+        return jsonify({
+            "success" : False,
+            "message" : "Não foi possível revogar o Refresh Token."
+            }), 500
+
     return jsonify({
         "success" : True,
         "message" : "Cadastro cancelado com sucesso."
@@ -356,13 +366,6 @@ def refresh():
     try:
         # ID usuário
         user_id = get_jwt_identity()
-
-        # Caso erro de autorização
-        if not user_id:
-            return jsonify({
-                "success" : False,
-                "message" : "Usuário não existe ou não está autorizado"
-                }), 401
 
         # Novo access token que mantém sessão
         new_access_token = create_access_token(identity=user_id)
@@ -385,11 +388,6 @@ def logout():
 
         # ID refresh token
         refresh_id = get_jwt().get("refresh_id")
-        if not refresh_id:
-            return jsonify({
-                "success" : False,
-                "message" : "Refresh ID ausente no Token"
-                }), 400
 
         # Confirmação de revogação
         revoke_confirm = utilities.add_revoked_tokens(refresh_id)

@@ -1,4 +1,5 @@
 from flask_jwt_extended import JWTManager
+from flask import jsonify
 from app.services import utilities
 import os
 from dotenv import load_dotenv
@@ -12,11 +13,24 @@ def init_jwt(app):
     jwt.init_app(app)
 
 @jwt.token_in_blocklist_loader
-def check_revoked_token(jwt_header, jwt_payload):
+def is_token_revoked(jwt_header, jwt_payload):
 
-    resfresh_id = jwt_payload.get("refresh_id")
+    refresh_id = jwt_payload.get("refresh_id")
 
-    if not resfresh_id:
-        return False
-    
-    return utilities.search_revoked_token(resfresh_id)
+    return utilities.search_revoked_token(refresh_id)
+
+@jwt.revoked_token_loader
+def revoked_token_response(jwt_header, jwt_payload):
+
+    return jsonify({
+        "success" : False,
+        "message" : "Refresh Token Revogado."
+        }), 401
+
+@jwt.expired_token_loader
+def expired_token_response(jwt_header, jwt_payload):
+
+    return jsonify({
+        "success" : False,
+        "message" : "Token expirado."
+        }), 401
