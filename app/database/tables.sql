@@ -13,7 +13,8 @@ CREATE TABLE destinations (
     country VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    active BOOLEAN DEFAULT TRUE
+    active BOOLEAN DEFAULT TRUE,
+	img_url VARCHAR(255) NOT NULL
 )Engine=InnoDB;
 
 CREATE TABLE reservations(
