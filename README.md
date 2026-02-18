@@ -58,6 +58,7 @@ consolidar a minha formação como desenvolvedor.
 
 - Tenha instalado o Python com versão maior ou igual a 3.9+(Recomendação: 3.11.9 - Usada para o desenvolvimento)  
 - Escolha uma pasta que deseja alocar o projeto(opcional).
+- Tenha o MySQL instalado e em execução.
 
 ## :inbox_tray: 2. Clone o Repositório:
 
@@ -90,12 +91,23 @@ venv\Scripts\Activate
 pip install -r requirements.txt
 ```
 
-## :recycle: 5. Configure o .env:
+## :game_die: 5. Configurar Database:
+
+- Usando o MySQL, crie um Schema que será conectado ao projeto.
+```sql
+CREATE DATABASE plataforma_viagens;
+```
+- Use os scripts para criar as tabelas em localizados em:  
+app/database/tables.sql  
+app/database/destinations_seed.sql  
+app/database/token_blacklist.sql
+
+## :recycle: 6. Configure o .env:
 
 - Adicione um arquivo .env no projeto.  
 - Para definir as variáveis de ambiente necessárias, use o arquivo .env.example do repositório como referência.
 
-## :microscope: 6. Executar e Testar a API:
+## :microscope: 7. Executar e Testar a API:
 
 - Com o ambiente virtual ativado, execute:  
 ```console
