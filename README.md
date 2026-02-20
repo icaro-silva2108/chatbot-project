@@ -36,7 +36,7 @@ Projeto pessoal de plataforma de viagens web que envolve funções como:
 - app/  
     - database/: Scripts SQL e conexão com o banco  
     - api/: Rotas, JWTmanager e rate limiter  
-    - test/: Testes  
+    - tests/: Testes  
     - services/: Regras de negócio, utilities e security(para hasheamento de senhas)
 
 # :chart_with_upwards_trend: Objetivo do Projeto
