@@ -192,7 +192,7 @@ def update_profile():
     if not data:
         return jsonify({
             "success" : False,
-            "message" : "Campos vazios. Preencha os campos que deseja alterar."
+            "message" : "JSON inválido"
             }), 400
 
     allowed_keys = {"name", "email", "password", "password_confirm", "birth_date"}
@@ -247,16 +247,22 @@ def update_profile():
         password = data.get("password")
         password_confirm = data.get("password_confirm")
 
+        if not password:
+            return jsonify({
+                "success" : False,
+                "message" : "O campo senha deve ser preenchido caso deseje alterá-la."
+                }), 400
+
+        if not password_confirm:
+            return jsonify({
+                "success" : False,
+                "message" : "O campo de confirmação de senha deve ser preenchido caso deseje alterá-la."
+                }), 400
+
         if password != password_confirm:
             return jsonify({
                 "success" : False,
                 "message" : "A senha e a confirmação devem ser iguais."
-                }), 400
-
-        if not password:
-            return jsonify({
-                "success" : False,
-                "message" : "O campo senha deve ser preenchido caso deseje alterá-lo."
                 }), 400
 
         if len(password) < 8:
