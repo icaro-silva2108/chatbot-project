@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from app.services import user_service, reservation_service, utilities, security
-from app.api.auth import get_access_token_identity, get_refresh_id, send_access_token
+from app.api.auth import get_token_identity, get_refresh_id, send_access_token
 
 protected_routes = Blueprint("protected_routes", __name__)
 
@@ -10,7 +10,7 @@ protected_routes = Blueprint("protected_routes", __name__)
 def myprofile():
 
     # ID usuário
-    user_id = get_access_token_identity()
+    user_id = get_token_identity()
 
     # Caso erro de autorização
     if not user_id:
@@ -46,7 +46,7 @@ def myprofile():
 def create_reservation():
 
     # ID usuário
-    user_id = get_access_token_identity()
+    user_id = get_token_identity()
 
     # Caso erro de autorização
     if not user_id:
@@ -108,7 +108,7 @@ def create_reservation():
 def show_user_reservations():
 
     # ID usuário
-    user_id = get_access_token_identity()
+    user_id = get_token_identity()
 
     # Caso erro de autorização
     if not user_id:
@@ -149,7 +149,7 @@ def show_user_reservations():
 def cancel_reservation(res_id):
 
     # ID usuário
-    user_id = get_access_token_identity()
+    user_id = get_token_identity()
 
     # Caso erro de autorização
     if not user_id:
@@ -177,7 +177,7 @@ def cancel_reservation(res_id):
 def update_profile():
 
     # ID usuário
-    user_id = get_access_token_identity()
+    user_id = get_token_identity()
 
     # Caso erro de autorização
     if not user_id:
@@ -299,7 +299,7 @@ def update_profile():
 def delete_user():
 
     # ID usuário
-    user_id = get_access_token_identity()
+    user_id = get_token_identity()
 
     # Caso erro de autorização
     if not user_id:
@@ -349,7 +349,7 @@ def refresh():
 
     try:
         # ID usuário
-        user_id = get_access_token_identity()
+        user_id = get_token_identity()
 
         # Novo access token que mantém sessão
         new_access_token = send_access_token(user_id)
