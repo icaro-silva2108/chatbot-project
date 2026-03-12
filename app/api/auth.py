@@ -2,7 +2,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 import uuid
 
 # Retorna a identidade do token
-def get_access_token_identity():
+def get_token_identity():
     return get_jwt_identity()
 
 # Retorna o refresh id(additional claim) do refresh_token
