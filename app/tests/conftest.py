@@ -67,7 +67,7 @@ def auth_fixture(client_no_ratelimit):
             conn.close()
 
 @pytest.fixture(scope="function")
-def mock_none_identity_fixture():
+def mock_none_identity_token():
 
-    with patch("app.api.protected_routes.get_access_token_identity", return_value=None):
+    with patch("app.api.protected_routes.get_token_identity", return_value=None):
         yield
