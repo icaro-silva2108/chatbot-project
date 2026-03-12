@@ -97,14 +97,32 @@ def auth_without_cleanup(client_no_ratelimit):
         "refresh_token" : response_signin.json["refresh_token"]
     }
 
+"""Fixtures de Mocks para os testes"""
+
+# Mock que força get_token_identity retornar None
 @pytest.fixture(scope="function")
 def mock_none_identity_token():
 
     with patch("app.api.protected_routes.get_token_identity", return_value=None):
         yield
 
+# Mock que força search_user_reservation retornar True
 @pytest.fixture(scope="function")
 def mock_user_reservation_true():
 
     with patch("app.api.protected_routes.utilities.search_user_reservation", return_value=True):
+        yield
+
+# Mock que força delete_user retornar None
+@pytest.fixture(scope="function")
+def mock_delete_user_none():
+
+    with patch("app.api.protected_routes.user_service.delete_user", return_value=None):
+        yield
+
+# Mock que força add_revoked_tokens retornar None
+@pytest.fixture(scope="function")
+def mock_add_revoked_tokens_none():
+
+    with patch("app.api.protected_routes.utilities.add_revoked_tokens", return_value=None):
         yield
